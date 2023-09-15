@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Define the User model
+model User {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String     @unique
+  password  String // You should hash and store the password securely
+  shipments Shipment[] // A user can have multiple shipments
+}
+
+// Define the Shipment model
+model Shipment {
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  senderName       String
+  senderAddress    String
+  recipientName    String
+  recipientAddress String
+  description      String
+  trackingNumber   Int    @unique
+  status           String @default("PENDING") // Set "Pending" as the default status    
+
+  // Define a reference to the User who created the shipment
+  createdBy   User   @relation(fields: [createdById], references: [id])
+  createdById String @db.ObjectId
+}
